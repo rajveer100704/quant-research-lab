@@ -37,6 +37,7 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 
+@st.cache_data(ttl=30)
 def get_btc_price():
     """Fetches the latest BTC price from Binance API."""
     try:
