@@ -143,7 +143,7 @@ python -m streamlit run dashboard/app.py
 
 If deployed publicly, the dashboard can be accessed at:
 
-`https://your-demo-url.streamlit.app`
+`https://quant-research-lab-100704.streamlit.app/`
 
 ## 🔄 Results Reproduction
 
