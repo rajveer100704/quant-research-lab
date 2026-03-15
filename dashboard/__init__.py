@@ -1,0 +1,1 @@
+"""Dashboard — Streamlit visualization interface."""

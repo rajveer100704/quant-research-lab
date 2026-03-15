@@ -1,0 +1,65 @@
+# ============================================================
+# Trading Configuration — AI Quant Trading Research Platform
+# ============================================================
+# Override Pydantic settings with this YAML for experiment
+# reproducibility. Load via:
+#   from config.settings import load_trading_config
+# ============================================================
+
+symbols:
+  - BTCUSDT
+  - ETHUSDT
+  - SOLUSDT
+
+timeframe: "1h"
+
+data:
+  history_limit: 5000          # candles to fetch
+  storage_format: "parquet"    # parquet | csv | json
+
+risk:
+  max_position_pct: 0.05      # max 5% of portfolio per trade
+  max_drawdown_pct: 0.15      # circuit breaker at 15%
+  stop_loss_pct: 0.02         # 2% stop-loss
+  max_open_positions: 3
+
+models:
+  lstm:
+    hidden_size: 128
+    num_layers: 2
+    dropout: 0.2
+    seq_len: 60
+    epochs: 50
+    learning_rate: 0.001
+
+  rl:
+    algorithm: "PPO"           # PPO | A2C
+    total_timesteps: 100000
+    learning_rate: 0.0003
+    initial_balance: 10000
+
+alpha:
+  signals:
+    - name: "momentum_12"
+      weight: 0.30
+    - name: "mean_reversion_20"
+      weight: 0.30
+    - name: "rsi_cross"
+      weight: 0.25
+    - name: "order_flow"
+      weight: 0.15
+
+fusion:
+  method: "weighted_average"   # weighted_average | majority_vote | meta_model
+  buy_threshold: 0.20
+  sell_threshold: -0.20
+
+simulator:
+  commission_rate: 0.001       # 10bps (Binance)
+  slippage_bps: 5.0
+  latency_ms: 50.0
+
+scheduler:
+  data_sync_hours: 1           # hourly data collection
+  feature_update_cron: "0 0 * * *"  # daily at midnight
+  model_retrain_cron: "0 0 * * 0"   # weekly on Sunday
