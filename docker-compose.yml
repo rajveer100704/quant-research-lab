@@ -1,59 +1,27 @@
 # ============================================================
 # Docker Compose — AI Quant Trading Research Platform
-# Services: dashboard, data_pipeline, model_training
+# Unified production service for easy deployment.
 # ============================================================
 
 version: "3.9"
 
 services:
-
-  dashboard:
+  quant-platform:
     build: .
-    container_name: quant_dashboard
+    container_name: quant_research_lab
     ports:
       - "8501:8501"
     volumes:
+      - ./.env:/app/.env
       - ./data:/app/data
-      - ./models:/app/models
-      - ./experiments:/app/experiments
+      - ./validation_results:/app/validation_results
+      - ./research_lab/reports:/app/research_lab/reports
     environment:
       - PLATFORM_LOG_LEVEL=INFO
-    command: streamlit run dashboard/app.py --server.port=8501 --server.address=0.0.0.0
+      - BINANCE_TESTNET=true
     restart: unless-stopped
-
-  data_pipeline:
-    build: .
-    container_name: quant_data_pipeline
-    volumes:
-      - ./data:/app/data
-    environment:
-      - BINANCE_API_KEY=${BINANCE_API_KEY:-}
-      - BINANCE_API_SECRET=${BINANCE_API_SECRET:-}
-      - BINANCE_TESTNET=true
-    command: >
-      python -c "
-      from data_pipeline import MarketDataCollector;
-      collector = MarketDataCollector();
-      collector.collect_all(limit=1000);
-      print('Data collection complete.')
-      "
-    profiles:
-      - data
-
-  model_training:
-    build: .
-    container_name: quant_model_training
-    volumes:
-      - ./data:/app/data
-      - ./models:/app/models
-      - ./experiments:/app/experiments
-    environment:
-      - BINANCE_TESTNET=true
-    command: python -m reinforcement_learning.train --symbol BTCUSDT --algorithm PPO --timesteps 50000
-    profiles:
-      - training
-
-volumes:
-  data:
-  models:
-  experiments:
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

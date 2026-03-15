@@ -1,59 +1,48 @@
 # AI Quantitative Trading Research Platform
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
-[![Platform Readiness](https://img.shields.io/badge/Status-Production--Ready-green.svg)]()
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)]()
+[![Research Status](https://img.shields.io/badge/Status-Industrial--Grade-brightgreen.svg)]()
 
 A modular, high-performance platform for quantitative trading research, alpha discovery, and machine learning trading experiments. This repository provides an end-to-end environment for developing, backtesting, and simulating AI-driven trading strategies with institutional-grade rigor.
 
-## 📺 Demo
+## 📄 Research Paper
+
+A detailed technical report describing the system architecture, research methodology, and experimental results is available below. This document provides a formal academic and engineering context for the platform.
+
+👉 **[Quantitative Trading Research Paper](docs/quant_research_paper.md)**
+
+## 📺 Project Showcase
+
+This video demonstrates the end-to-end workflow of the platform:
+
+1. **Market Data Ingestion**: Real-time and historical data collection.
+2. **Feature Engineering**: Automated generation of alpha-generating signals.
+3. **RL Agent Training**: Training high-performance PPO trading agents.
+4. **Strategy Backtesting**: Realistic simulation with slippage and market impact.
+5. **Dashboard Analytics**: Interactive visualization of research findings.
 
 ![System Demo](docs/demo.gif)
 
-*The demo showcases the automated data pipeline, RL agent training, strategy backtesting, and real-time dashboard visualization.*
+## 🚀 Industrial-Grade Features
 
-## 🚀 Key Features
-
-- **Market Data Ingestion**: Robust collectors for orderbook streams, trade history, and sentiment data.
-- **Feature Engineering**: Advanced technical indicators, micro-structure features, and NLP-driven sentiment extraction.
-- **Feature Store**: Unified registry for managing and serving features to training and inference pipelines.
-- **Alpha Research Lab**: Specialized tools for signal discovery, IC analysis, and factor validation.
-- **Predictive Modeling**: High-precision LSTM architectures for time-series forecasting.
-- **Reinforcement Learning**: PPO-based agents trained in custom trading environments for optimal execution.
-- **Signal Fusion**: Multi-source fusion engine for weighting and combining heterogeneous alpha signals.
-- **Risk Management**: Dynamic position sizing, drawdown control, and portfolio-level risk limits.
-- **Market Simulator**: Realistic simulation environment with slippage, latency, and fee models.
-- **Dashboard Visualization**: Streamlit-based interactive dashboard for real-time strategy monitoring and analytics.
+• **Experiment Tracking**: Integrated [RunTracker](experiments/experiment_manager.py) class for systematic logging of all research iterations.  
+• **Auto-Optimization**: Powered by [Optuna](optimization/optuna_optimizer.py) to automate hyperparameter tuning for strategies and RL agents.  
+• **Paper Trading Engine**: [Live Simulation](live_trading/paper_trader.py) engine to monitor signals against real-time price feeds without capital risk.  
+• **Advanced Risk Management**: Multi-layer risk controls including Kelly sizing, dynamic stop-loss, and circuit breakers.  
+• **Modular Architecture**: Decoupled design favoring extensibility, maintainability, and reproducibility.
 
 ## 🏗️ System Architecture
 
-The platform follows a research-to-execution workflow, ensuring that insights developed in the lab are seamlessly translated into executable strategies.
+The platform follows a research-to-execution workflow, mirroring the infrastructure of modern quantitative funds.
 
-```text
-Market Data
-    ↓
-Feature Engineering
-    ↓
-Feature Store
-    ↓
-Research Lab  ←-----|
-    ↓               |
-AI Models (LSTM/RL) |
-    ↓               |
-Signal Fusion       |
-    ↓               |
-Risk Management     |
-    ↓               |
-Market Simulator    |
-    ↓               |
-Execution Engine    |
-    ↓               |
-Dashboard ---------|
-```
+![Architecture](docs/architecture.png)
 
-## 📊 Experiment Results
+## 📊 Example Research Run
 
-Performance metrics extracted from the latest production validation run (BTC/USDT).
+> [!NOTE]
+> The following metrics represent an example validation run of the research pipeline. The purpose of this experiment is to demonstrate the full workflow of data ingestion, model training, and backtesting rather than to present a production-ready trading strategy.
 
 | Metric          | Value        |
 |-----------------|--------------|
@@ -81,7 +70,7 @@ Interactive analytics for portfolio performance and alpha research.
 
 ![Dashboard Preview](assets/mock_exchange.png)
 
-*Dashboard screenshot showing portfolio analytics and live strategy comparison.*
+*Dashboard screenshot showing portfolio analytics and strategy comparison.*
 
 ## 🧪 Research Lab Reports
 
@@ -95,81 +84,86 @@ Detailed analysis reports generated by the platform's automated research engine:
 ```text
 project_root/
 ├── alpha_research/       # Signal discovery and validation
-├── config/               # System and trading settings
 ├── dashboard/            # Streamlit visualization app
 ├── data_pipeline/        # Collectors and streamers
-├── docs/                 # Documentation and demo assets
+├── deployment/           # Production deployment configs (Render, Docker)
+├── docs/                 # Documentation, Research Paper, and Demo assets
 ├── execution_engine/     # Live execution and order management
-├── experiments/          # Experiment tracking and management
+├── experiments/          # Experiment Tracking and Run Registry
 ├── feature_engine/       # Technical and sentiment indicators
 ├── feature_store/        # Feature registry and serving
-├── market_intelligence/  # Regime detection and aggregation
+├── live_trading/         # Paper Trading and Real-time simulation
 ├── market_simulator/     # Backtesting and simulation environment
-├── models/               # Forecasting models (LSTM, etc.)
+├── models/               # Forecasting models (LSTM, RL Agents)
+├── optimization/         # Hyperparameter Optimization (Optuna)
 ├── orchestrator/         # Pipeline runner and job controller
-├── reinforcement_learning/# RL environments and agents
+├── reinforcement_learning/# RL environments and agent logic
 ├── research_lab/         # Analysis notebooks and reports
 ├── risk_management/      # Position sizing and risk limits
-├── scheduler/            # Job scheduling for live trading
 ├── signal_fusion/        # Alpha signal combination
-├── tests/                # Unit and integration tests
 └── validation_results/   # Artifacts from research runs
 ```
 
 ## ⏱️ Quick Start
 
-### 1. Run the Data Pipeline
+### 1. Environment Setup
 ```bash
-python run_pipeline.py --symbol BTCUSDT --limit 2000
+cp .env.example .env
+pip install -r requirements.txt
 ```
 
-### 2. Train RL Agent
+### 2. Run the Full Demo Pipeline
 ```bash
-python train_rl.py --algorithm PPO --timesteps 100000
+bash scripts/run_demo.sh
 ```
 
-### 3. Run Backtest
+### 3. Industrial Commands
 ```bash
-python run_backtest.py --strategy momentum
+# Systematic Optimization
+python -m optimization.optuna_optimizer
+
+# Real-time Paper Trading
+python -m live_trading.paper_trader
 ```
 
-### 4. Launch Dashboard
-```bash
-streamlit run dashboard/app.py
-```
+## 🌐 Live Demo (Optional)
+
+If deployed publicly, the dashboard can be accessed at:
+
+`https://your-demo-url.streamlit.app`
 
 ## 🔄 Results Reproduction
 
 To regenerate the results and plots shown in this README, execute the following workflow:
 
 1. **Ingest Data**: `python run_pipeline.py --symbol BTCUSDT --interval 1h --limit 2000`
-2. **Train Models**: `python train_rl.py --algorithm PPO --timesteps 100000`
-3. **Validate Strategy**: `python run_backtest.py --strategy momentum --limit 5000`
+2. **Train Models**: `python train_rl.py --algorithm PPO --timesteps 50000`
+3. **Validate Strategy**: `python run_backtest.py --strategy momentum --limit 5000 --output validation_results/backtest_results.json`
 4. **Monitor Results**: `streamlit run dashboard/app.py`
 
-Executing these commands will update the datasets in `data/`, training curves in `validation_plots/`, and performance metrics in `validation_results/`.
+## 🐳 Docker Deployment
 
-## 🔬 Research Workflow
+Deploy the full platform using Docker Compose:
 
-1. **Exploration**: Use `research_lab/analysis/` notebooks to explore individual signals.
-2. **Feature Creation**: Add new features to `feature_engine/` and register them in the `feature_store/`.
-3. **Training**: Train models in `models/` or RL agents in `reinforcement_learning/`.
-4. **Simulation**: Run realistic backtests using `market_simulator/`.
-5. **Validation**: Generate detailed reports in `research_lab/reports/` before deploying to execution.
+```bash
+# Build and start services
+docker-compose up --build -d
+
+# Access dashboard at http://localhost:8501
+```
 
 ## 🛠️ Technology Stack
 
-- **Core**: Python 3.9+, Pandas, NumPy
-- **ML/Deep Learning**: PyTorch, Stable-Baselines3
+- **Core**: Python 3.11+, Pandas, NumPy, PyArrow
+- **ML/Optimization**: PyTorch, Stable-Baselines3, Gymnasium, Optuna
 - **Visualization**: Streamlit, Plotly, Matplotlib
-- **Data Engineering**: PyArrow, SQLite
-- **Deployment**: Docker, Docker-Compose
+- **Infrastructure**: Docker, Docker-Compose, Pydantic, Dotenv
 
 ## 🧪 Testing
 
-Run the full test suite using pytest:
+Run the full institutional test suite:
 ```bash
-pytest tests/
+python -m pytest tests/
 ```
 
 ## 📄 License

@@ -1,0 +1,29 @@
+# ============================================================
+# Production Docker Compose — AI Quant Trading Research Platform
+# optimized for cloud deployment and persistent remote execution.
+# ============================================================
+
+version: "3.9"
+
+services:
+  quant-platform:
+    build: 
+      context: ..
+      dockerfile: Dockerfile
+    container_name: quant_platform_prod
+    ports:
+      - "80:8501"
+    volumes:
+      - ../data:/app/data
+      - ../validation_results:/app/validation_results
+      - ../experiments:/app/experiments
+      - ../research_lab/reports:/app/research_lab/reports
+    environment:
+      - PLATFORM_LOG_LEVEL=INFO
+      - BINANCE_TESTNET=true
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5

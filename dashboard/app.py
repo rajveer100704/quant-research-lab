@@ -303,73 +303,72 @@ def _rl_training_page() -> None:
     """RL agent training metrics."""
     st.title("🤖 RL Training Monitor")
 
-    col1, col2 = st.columns(2)
-    with col1:
-        st.subheader("Training Reward")
-        np.random.seed(42)
-        episodes = np.arange(500)
-        rewards = np.cumsum(np.random.randn(500) * 0.1) + np.linspace(0, 5, 500)
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(x=episodes, y=rewards, line=dict(color="#4caf50")))
-        fig.update_layout(template="plotly_dark", height=300, xaxis_title="Episode", yaxis_title="Cumulative Reward")
-        st.plotly_chart(fig, use_container_width=True)
+    # Load real training curve if exists
+    training_plot_path = PROJECT_ROOT / "validation_results" / "validation_plots" / "rl_training_curve.png"
+    if training_plot_path.exists():
+        st.subheader("RL Training Rewards")
+        st.image(str(training_plot_path), use_column_width=True)
+        st.success("✅ Showing latest training curve.")
+    else:
+        st.warning("No RL training curve found. Train an agent to see progress.")
+        col1, col2 = st.columns(2)
+        with col1:
+            st.subheader("Training Reward")
+            np.random.seed(42)
+            episodes = np.arange(500)
+            rewards = np.cumsum(np.random.randn(500) * 0.1) + np.linspace(0, 5, 500)
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(x=episodes, y=rewards, line=dict(color="#4caf50")))
+            fig.update_layout(template="plotly_dark", height=300, xaxis_title="Episode", yaxis_title="Cumulative Reward")
+            st.plotly_chart(fig, use_container_width=True)
 
-    with col2:
-        st.subheader("Action Distribution")
-        actions = ["BUY", "SELL", "HOLD"]
-        counts = [180, 170, 150]
-        fig = px.bar(x=actions, y=counts, color=actions,
-                     color_discrete_map={"BUY": "#4caf50", "SELL": "#f44336", "HOLD": "#ff9800"})
-        fig.update_layout(template="plotly_dark", height=300, showlegend=False)
-        st.plotly_chart(fig, use_container_width=True)
-
-    st.subheader("Portfolio Value During Training")
-    steps = np.arange(1000)
-    portfolio = 10000 + np.cumsum(np.random.randn(1000) * 30)
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(x=steps, y=portfolio, fill="tozeroy", line=dict(color="#00d4aa")))
-    fig.update_layout(template="plotly_dark", height=300)
-    st.plotly_chart(fig, use_container_width=True)
+        with col2:
+            st.subheader("Action Distribution")
+            actions = ["BUY", "SELL", "HOLD"]
+            counts = [180, 170, 150]
+            fig = px.bar(x=actions, y=counts, color=actions,
+                         color_discrete_map={"BUY": "#4caf50", "SELL": "#f44336", "HOLD": "#ff9800"})
+            fig.update_layout(template="plotly_dark", height=300, showlegend=False)
+            st.plotly_chart(fig, use_container_width=True)
 
 
 def _backtest_page() -> None:
     """Backtest simulation results with enhanced equity visualization."""
     st.title("🎯 Backtest Results")
 
-    col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Total Return", "+8.23%")
-    col2.metric("Sharpe Ratio", "1.34")
-    col3.metric("Max Drawdown", "-6.1%")
-    col4.metric("Total Trades", "47")
+    # Load real results if they exist
+    results_path = PROJECT_ROOT / "validation_results" / "backtest_results.json"
+    if results_path.exists():
+        try:
+            with open(results_path, "r") as f:
+                import json
+                data = json.load(f)
+            
+            # Metrics
+            col1, col2, col3, col4 = st.columns(4)
+            col1.metric("Total Return", f"{data.get('total_return_pct', 0):.2f}%")
+            col2.metric("Sharpe Ratio", f"{data.get('sharpe_ratio', 0):.4f}")
+            col3.metric("Max Drawdown", f"{data.get('max_drawdown_pct', 0):.2f}%")
+            col4.metric("Total Trades", f"{data.get('n_trades', 0)}")
 
-    # Equity curve with trade markers
-    st.subheader("Equity Curve with Trade Markers")
-    np.random.seed(42)
-    n = 500
-    equity = 10000 + np.cumsum(np.random.randn(n) * 30)
-    dates = pd.date_range("2025-01-01", periods=n, freq="h")
+            # Equity Curve
+            st.subheader("Equity Curve")
+            equity_path = PROJECT_ROOT / "validation_results" / "validation_plots" / "equity_curve.png"
+            if equity_path.exists():
+                st.image(str(equity_path), use_column_width=True)
+            else:
+                st.warning("Equity curve plot not found in validation_plots/")
 
-    # Gen trade markers
-    buy_idx = np.random.choice(range(50, 450), size=8, replace=False)
-    sell_idx = buy_idx + np.random.randint(10, 50, size=8)
-    sell_idx = np.clip(sell_idx, 0, n - 1)
-
-    fig = make_subplots(rows=2, cols=1, shared_xaxes=True, vertical_spacing=0.05,
-                        row_heights=[0.75, 0.25])
-    fig.add_trace(go.Scatter(x=dates, y=equity, name="Portfolio", line=dict(color="#4fc3f7"), fill="tonexty"), row=1, col=1)
-    fig.add_trace(go.Scatter(x=dates[buy_idx], y=equity[buy_idx], name="BUY",
-                             mode="markers", marker=dict(color="#4caf50", size=10, symbol="triangle-up")), row=1, col=1)
-    fig.add_trace(go.Scatter(x=dates[sell_idx], y=equity[sell_idx], name="SELL",
-                             mode="markers", marker=dict(color="#f44336", size=10, symbol="triangle-down")), row=1, col=1)
-
-    # Drawdown
-    peak = np.maximum.accumulate(equity)
-    dd = (peak - equity) / peak * 100
-    fig.add_trace(go.Scatter(x=dates, y=-dd, name="Drawdown", fill="tozeroy",
-                             line=dict(color="#f44336", width=1)), row=2, col=1)
-
-    fig.update_layout(template="plotly_dark", height=500)
-    st.plotly_chart(fig, use_container_width=True)
+            st.success(f"✅ Loaded latest results from `{results_path.name}`")
+        except Exception as e:
+            st.error(f"Error loading results: {e}")
+    else:
+        st.warning("No backtest results found. Run a simulation to generate results.")
+        col1, col2, col3, col4 = st.columns(4)
+        col1.metric("Total Return", "+8.23%")
+        col2.metric("Sharpe Ratio", "1.34")
+        col3.metric("Max Drawdown", "-6.1%")
+        col4.metric("Total Trades", "47")
 
     st.subheader("Trade Log")
     trades = pd.DataFrame({
@@ -418,19 +417,24 @@ def _research_lab_page() -> None:
 
     with tab1:
         st.subheader("Feature Importance Ranking")
-        np.random.seed(42)
-        features = ["rsi", "macd", "volatility", "sma_20", "momentum", "order_imbalance",
-                     "spread_bps", "sentiment_compound", "volume", "atr", "ema_20", "roc"]
-        importance = np.sort(np.random.uniform(0.02, 0.15, len(features)))[::-1]
+        
+        importance_path = PROJECT_ROOT / "validation_results" / "validation_plots" / "feature_importance.png"
+        if importance_path.exists():
+            st.image(str(importance_path), use_column_width=True)
+        else:
+            np.random.seed(42)
+            features = ["rsi", "macd", "volatility", "sma_20", "momentum", "order_imbalance",
+                         "spread_bps", "sentiment_compound", "volume", "atr", "ema_20", "roc"]
+            importance = np.sort(np.random.uniform(0.02, 0.15, len(features)))[::-1]
 
-        fig = go.Figure()
-        colors = ["#4caf50" if v > 0.08 else "#ff9800" if v > 0.05 else "#f44336" for v in importance]
-        fig.add_trace(go.Bar(x=importance, y=features, orientation="h",
-                             marker_color=colors, text=[f"{v:.3f}" for v in importance],
-                             textposition="auto"))
-        fig.update_layout(template="plotly_dark", height=450, yaxis=dict(autorange="reversed"),
-                          xaxis_title="Importance Score")
-        st.plotly_chart(fig, use_container_width=True)
+            fig = go.Figure()
+            colors = ["#4caf50" if v > 0.08 else "#ff9800" if v > 0.05 else "#f44336" for v in importance]
+            fig.add_trace(go.Bar(x=importance, y=features, orientation="h",
+                                 marker_color=colors, text=[f"{v:.3f}" for v in importance],
+                                 textposition="auto"))
+            fig.update_layout(template="plotly_dark", height=450, yaxis=dict(autorange="reversed"),
+                              xaxis_title="Importance Score")
+            st.plotly_chart(fig, use_container_width=True)
 
         st.caption("🟢 High importance  🟠 Medium  🔴 Low")
 

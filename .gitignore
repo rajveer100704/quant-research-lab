@@ -26,7 +26,10 @@ sibyl/
 # Data & models (not tracked in git)
 data/
 models/
-experiments/
+experiments/*
+!experiments/run_registry.json
+!experiments/__init__.py
+!experiments/experiment_manager.py
 *.parquet
 *.h5
 *.keras

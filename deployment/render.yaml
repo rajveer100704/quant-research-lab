@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: quant-research-lab
+    runtime: docker
+    repo: https://github.com/rajveer100704/quant-research-lab
+    plan: free
+    healthCheckPath: /_stcore/health
+    envVars:
+      - key: BINANCE_TESTNET
+        value: "true"
+      - key: PLATFORM_LOG_LEVEL
+        value: INFO
