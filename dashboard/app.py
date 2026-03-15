@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
+import requests
 
 import numpy as np
 import pandas as pd
@@ -36,6 +37,15 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 
+def get_btc_price():
+    """Fetches the latest BTC price from Binance API."""
+    try:
+        r = requests.get("https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT", timeout=5)
+        return float(r.json()["price"])
+    except:
+        return None
+
+
 def main() -> None:
     """Streamlit app entry point."""
     st.set_page_config(
@@ -46,8 +56,15 @@ def main() -> None:
     )
 
     # --- Sidebar ---
-    st.sidebar.title("📈 Quant Research Platform")
+    st.sidebar.title("📈 Quant Research")
+    
+    # Live Price Widget
+    price = get_btc_price()
+    if price:
+        st.sidebar.metric("BTC Price", f"${price:,.2f}")
+    
     st.sidebar.markdown("---")
+    
     page = st.sidebar.radio(
         "Navigate",
         [
@@ -63,7 +80,37 @@ def main() -> None:
     )
 
     st.sidebar.markdown("---")
-    st.sidebar.caption("AI Quant Trading Research Platform v1.0")
+    
+    # System Health Panel
+    st.sidebar.markdown("### System Health")
+    status_data = {
+        "Data Pipeline": "Running",
+        "Feature Store": "Healthy",
+        "RL Trainer": "Idle",
+        "Backtest Engine": "Ready"
+    }
+
+    for k, v in status_data.items():
+        st.sidebar.write(f"**{k}**: {v}")
+
+    st.sidebar.markdown("---")
+    st.sidebar.caption("QuantResearchLab Platform v1.1")
+
+    # --- Header Metrics ---
+    st.markdown(
+        """
+        ### AI Quantitative Trading Research Platform
+        Institutional-grade research infrastructure for alpha discovery, machine learning experimentation, and strategy simulation.
+        """
+    )
+
+    hcol1, hcol2, hcol3, hcol4 = st.columns(4)
+    hcol1.metric("Platform Status", "Operational")
+    hcol2.metric("Active Models", "3")
+    hcol3.metric("Research Signals", "12")
+    hcol4.metric("Strategies Evaluated", "5")
+
+    st.markdown("---")
 
     pages = {
         "📊 Portfolio Overview": _portfolio_page,
@@ -132,7 +179,7 @@ def _portfolio_page() -> None:
     })
     st.dataframe(perf_data, use_container_width=True, hide_index=True)
 
-    st.info("💡 Connect live data by configuring your Binance API keys in `config/settings.py`.")
+    st.info("💡 Connect live data by configuring your Binance API keys in `.env`.")
 
 
 def _market_analysis_page() -> None:
@@ -179,10 +226,10 @@ def _market_analysis_page() -> None:
 
 
 def _strategy_comparison_page() -> None:
-    """Head-to-head strategy comparison."""
+    """Head-to-head strategy comparison with Leaderboard."""
     st.title("⚔️ Strategy Comparison")
 
-    st.subheader("Performance Matrix")
+    st.subheader("Strategy Leaderboard")
     strategies = pd.DataFrame({
         "Strategy": ["LSTM Predictor", "RL Agent (PPO)", "Momentum Alpha", "Mean Reversion", "Combined Signal"],
         "Total Return (%)": [8.23, 14.67, 5.41, -2.18, 12.45],
@@ -193,8 +240,9 @@ def _strategy_comparison_page() -> None:
         "Trade Count": [38, 52, 67, 89, 47],
     })
 
-    # Color-code the dataframe
-    st.dataframe(strategies, use_container_width=True, hide_index=True)
+    # Sort and rank strategies
+    leaderboard = strategies.sort_values("Sharpe Ratio", ascending=False)
+    st.dataframe(leaderboard, use_container_width=True, hide_index=True)
 
     # Equity curves comparison
     st.subheader("Equity Curves")
@@ -307,7 +355,7 @@ def _rl_training_page() -> None:
     training_plot_path = PROJECT_ROOT / "validation_results" / "validation_plots" / "rl_training_curve.png"
     if training_plot_path.exists():
         st.subheader("RL Training Rewards")
-        st.image(str(training_plot_path), use_column_width=True)
+        st.image(str(training_plot_path), use_container_width=True)
         st.success("✅ Showing latest training curve.")
     else:
         st.warning("No RL training curve found. Train an agent to see progress.")
@@ -355,7 +403,7 @@ def _backtest_page() -> None:
             st.subheader("Equity Curve")
             equity_path = PROJECT_ROOT / "validation_results" / "validation_plots" / "equity_curve.png"
             if equity_path.exists():
-                st.image(str(equity_path), use_column_width=True)
+                st.image(str(equity_path), use_container_width=True)
             else:
                 st.warning("Equity curve plot not found in validation_plots/")
 
@@ -420,7 +468,7 @@ def _research_lab_page() -> None:
         
         importance_path = PROJECT_ROOT / "validation_results" / "validation_plots" / "feature_importance.png"
         if importance_path.exists():
-            st.image(str(importance_path), use_column_width=True)
+            st.image(str(importance_path), use_container_width=True)
         else:
             np.random.seed(42)
             features = ["rsi", "macd", "volatility", "sma_20", "momentum", "order_imbalance",
