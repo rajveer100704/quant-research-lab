@@ -46,12 +46,12 @@ The platform follows a research-to-execution workflow, mirroring the infrastruct
 
 | Metric          | Value        |
 |-----------------|--------------|
-| Total Return    | -14.35%      |
-| Sharpe Ratio    | -3.53        |
-| Max Drawdown    | 17.91%       |
-| Total Trades    | 109          |
+| Total Return    | -10.18%      |
+| Sharpe Ratio    | -2.72        |
+| Max Drawdown    | 15.42%       |
+| Total Trades    | 76           |
 | Initial Capital | 10,000 USDT  |
-| Final Portfolio | 8,564.62 USDT|
+| Final Portfolio | 8,982.44 USDT|
 
 ## 📈 Visual Results
 
@@ -108,7 +108,14 @@ project_root/
 
 ### 1. Environment Setup
 ```bash
+# Clone the repository
+git clone https://github.com/rajveer100704/quant-research-lab
+cd quant-research-lab
+
+# Setup environment variables
 cp .env.example .env
+
+# Install dependencies
 pip install -r requirements.txt
 ```
 
@@ -117,13 +124,19 @@ pip install -r requirements.txt
 bash scripts/run_demo.sh
 ```
 
-### 3. Industrial Commands
+### 3. Individual Components
 ```bash
-# Systematic Optimization
-python -m optimization.optuna_optimizer
+# Ingest Data & Run Pipeline
+python run_pipeline.py --symbol BTCUSDT --limit 2000
 
-# Real-time Paper Trading
-python -m live_trading.paper_trader
+# Train RL Agent
+python train_rl.py --algorithm PPO --timesteps 100000
+
+# Run Backtest
+python run_backtest.py --strategy momentum
+
+# Launch Dashboard
+python -m streamlit run dashboard/app.py
 ```
 
 ## 🌐 Live Demo (Optional)
@@ -139,7 +152,7 @@ To regenerate the results and plots shown in this README, execute the following 
 1. **Ingest Data**: `python run_pipeline.py --symbol BTCUSDT --interval 1h --limit 2000`
 2. **Train Models**: `python train_rl.py --algorithm PPO --timesteps 50000`
 3. **Validate Strategy**: `python run_backtest.py --strategy momentum --limit 5000 --output validation_results/backtest_results.json`
-4. **Monitor Results**: `streamlit run dashboard/app.py`
+4. **Monitor Results**: `python -m streamlit run dashboard/app.py`
 
 ## 🐳 Docker Deployment
 
